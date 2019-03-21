@@ -225,13 +225,10 @@ def calculateF_Measure(labels, groundTruth, k=3):
     for i in range(k):
         for j in range(len(listNij[i])):
             NumberOfElementsInEachCluster[i] += listNij[i][j]
-<<<<<<< HEAD
     listF_measure = [0] * k
     print("Groung Truth List: ", groundtruthList)
-=======
     listF_measure = [0]*k
     print("Groung Truth List: ",groundtruthList)
->>>>>>> 6e66ca52604066317866c6d6efceac416410fb39
     for i in range(k):
         if NumberOfElementsInEachCluster[i] == 0:
             listF_measure[i] = 0
@@ -267,11 +264,8 @@ def calculateConditionalEntropy(labels, groundTruth, k=3):
     for i in range(k):
         entropy += (numberOfElementsInEachCluster[i] / sizeOfData) * entropyOfEachCluster[i]
     return entropy
-<<<<<<< HEAD
 
 
-=======
->>>>>>> 6e66ca52604066317866c6d6efceac416410fb39
 #########################################################################################################################################################
 if __name__ == '__main__':
     trainImages = readImagesPath("data/images/train")
@@ -280,7 +274,6 @@ if __name__ == '__main__':
     groundTruthLabelsVectorList = getGroundTruthLabelsAndGenerateImage(matPath, imagePath)
     rgbImages, vectorizedImages = imgRGBreadOneImage(imagePath)
     # rgbImages, vectorizedImages = imgRGBread(trainImages)
-<<<<<<< HEAD
 
     # The only value to change in the code
     k = 5
@@ -295,8 +288,7 @@ if __name__ == '__main__':
               calculateConditionalEntropy(clustersLabels, groundTruthLabelVector, k=k))
         print("F_Measure of segment #", i, " = ", calculateF_Measure(clustersLabels, groundTruthLabelVector, k=k), "\n")
 
-=======
-    
+
     #The only value to change in the code
     k = 5
     
@@ -304,7 +296,6 @@ if __name__ == '__main__':
     testImage = vectorizedImages[0]
     finalCenters, clustersLabels = kmeans(testImage, k)
     print("Manually Implemented Kmeans")
->>>>>>> 6e66ca52604066317866c6d6efceac416410fb39
     i = -1
     print('*****************************************************************')
     print('Sickit learn KMeans:')
@@ -312,12 +303,10 @@ if __name__ == '__main__':
     testKMeansSickitLearn = KMeans(n_clusters=k).fit(testImage)
     for groundTruthLabelVector in groundTruthLabelsVectorList:
         i += 1
-<<<<<<< HEAD
         print("ConditionalEntropy of segment #", i, " = ",
               calculateConditionalEntropy(testKMeansSickitLearn.labels_, groundTruthLabelVector, k=k))
         print("F_Measure of segment #", i, " = ",
               calculateF_Measure(testKMeansSickitLearn.labels_, groundTruthLabelVector, k=k), "\n")
-=======
         print("ConditionalEntropy of segment #",i," = ",calculateConditionalEntropy(clustersLabels,groundTruthLabelVector,k = k))
         print("F_Measure of segment #",i," = ",calculateF_Measure(clustersLabels,groundTruthLabelVector,k=k),"\n")
 
@@ -331,4 +320,3 @@ if __name__ == '__main__':
         i += 1
         print("ConditionalEntropy of segment #",i," = ",calculateConditionalEntropy(testKMeansSickitLearn.labels_,groundTruthLabelVector,k=k))
         print("F_Measure of segment #",i," = ",calculateF_Measure(testKMeansSickitLearn.labels_,groundTruthLabelVector,k=k),"\n")
->>>>>>> 6e66ca52604066317866c6d6efceac416410fb39
