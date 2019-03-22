@@ -249,21 +249,16 @@ def normalizedCut(testRGBImage,imagePath,clustersLabels,groundTruthLabelVector,k
     ax[1].imshow(out)
     plt.tight_layout()
     plt.show()
-    
-    #print("ConditionalEntropy = ",calculateConditionalEntropy(labels.ravel(),groundTruthLabelVector,k = k))
-    #print("F_Measure = ",calculateF_Measure(labels.ravel(),groundTruthLabelVector,k=k),"\n")
 #########################################################################################################################################################
 if __name__ == '__main__':
     trainImages = readImagesPath("data/images/train")
     graundTruthImages = readImagesPath("data/groundTruth/train") 
-    #matPath = "data/groundTruth/train/105019.mat"
-    #imagePath = "data/images/train/105019.jpg"
     
     
     ######################################    
     #The only values to change in the code
     kValues = [3,5,7,9,11]
-    imageIndex=20
+    imageIndex=79
     ######################################   
       
     matPath = graundTruthImages[imageIndex]
