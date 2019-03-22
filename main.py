@@ -19,8 +19,6 @@ def readImagesPath(path):
         trainData += [ImagePath]
     # return all images paths
     return trainData
-
-
 # **************************************************************************************************
 def imgRGBread(images):
     rgbImages = []  # 3D images
@@ -35,8 +33,6 @@ def imgRGBread(images):
         # convert image to (M*N)*3 Matrix
         vectorizedImages.append(image.reshape(-1, 3))
     return rgbImages, vectorizedImages
-
-
 # **************************************************************************************************
 def imgRGBreadOneImage(imagePath):
     rgbImages = []  # 3D images
@@ -50,8 +46,6 @@ def imgRGBreadOneImage(imagePath):
     # convert image to (M*N)*3 Matrix
     vectorizedImage.append(image.reshape(-1, 3))
     return rgbImages, vectorizedImage
-
-
 # **************************************************************************************************
 def kmeans(dataSet, k):
     # I/p one of the images of vectorized Images list
@@ -99,8 +93,6 @@ def kmeans(dataSet, k):
                     count += 1
             centers[i] = (sumX / count, sumY / count, sumZ / count)
     return (centers, clusterAssignment)
-
-
 # **************************************************************************************************
 def __extractGrondTruthMatrix(mat):
     _groundTruthLabelVectorList = []
@@ -112,14 +104,7 @@ def __extractGrondTruthMatrix(mat):
         for row in _groundTruthMatrix:
             tempList.extend(row.tolist())
         _groundTruthLabelVectorList.append(tempList)
-    # print(len(_groundTruthMatrixes))
-    # print(len(_groundTruthMatrixes[0]))
-    # print(len(_groundTruthMatrixes[0][0]))
-    # print(len(_groundTruthLabelVectorList))
-    # print(len(_groundTruthLabelVectorList[0]))
     return _groundTruthMatrixes, _groundTruthLabelVectorList
-
-
 # **************************************************************************************************
 def __getGroundTruthLabels(groundTruthMatrix, image):
     _labelsDict = {}
@@ -133,8 +118,6 @@ def __getGroundTruthLabels(groundTruthMatrix, image):
                 ima = image[i][j]
                 _labelsDict.update({key: [ima[2], ima[1], ima[0]]})
     return _labelsDict
-
-
 # **************************************************************************************************
 def getGroundTruthLabelsAndGenerateImage(matPath, imagePath):
     image = cv2.imread(imagePath)
@@ -142,10 +125,6 @@ def getGroundTruthLabelsAndGenerateImage(matPath, imagePath):
     _groundTruthMatrixes, _groundTruthLabelVectorList = __extractGrondTruthMatrix(mat)
     for z in range(len(_groundTruthMatrixes)):
         groundTruthMatrix = _groundTruthMatrixes[z]
-        groundTruthLabelVector = _groundTruthLabelVectorList[z]
-        # print(len(groundTruthMatrix))
-        # print(len(groundTruthMatrix[0]))
-        # print(len(groundTruthLabelVector))
         labelsDict = __getGroundTruthLabels(groundTruthMatrix, image)
         rowsNumber = len(groundTruthMatrix)
         colsNumber = len(groundTruthMatrix[0])
@@ -157,8 +136,6 @@ def getGroundTruthLabelsAndGenerateImage(matPath, imagePath):
         img.save('groundTruth#' + str(z) + '.jpg')
 
     return _groundTruthLabelVectorList
-
-
 # **************************************************************************************************
 def purityOfEachClass(labels, groundTruth2, k=3, sorted=True):
     groundTruthLabesNumber = 0
@@ -205,8 +182,6 @@ def purityOfEachClass(labels, groundTruth2, k=3, sorted=True):
         groundtruthList[j] = sum
 
     return listNij, groundtruthList, groundTruthLabesNumber
-
-
 #########################################################################################################################################################
 def calculatePurity(labels, groundTruth, k=3):
     listNij, groundtruthList, groundTruthLabesNumber = purityOfEachClass(labels, groundTruth, k)
@@ -216,8 +191,6 @@ def calculatePurity(labels, groundTruth, k=3):
         sum += listNij[i][0]
     purity = sum / len(labels)
     return purity
-
-
 #########################################################################################################################################################
 def calculateF_Measure(labels, groundTruth, k=3):
     listNij, groundtruthList, groundTruthLabesNumber = purityOfEachClass(labels, groundTruth, k)
@@ -242,8 +215,6 @@ def calculateF_Measure(labels, groundTruth, k=3):
         sum += listF_measure[i]
     f_Measure = sum / k
     return f_Measure
-
-
 #########################################################################################################################################################
 def calculateConditionalEntropy(labels, groundTruth, k=3):
     listNij, groundtruthList, groundTruthLabesNumber = purityOfEachClass(labels, groundTruth, k, sorted=False)
@@ -264,9 +235,10 @@ def calculateConditionalEntropy(labels, groundTruth, k=3):
     for i in range(k):
         entropy += (numberOfElementsInEachCluster[i] / sizeOfData) * entropyOfEachCluster[i]
     return entropy
-
-
 #########################################################################################################################################################
+
+
+
 if __name__ == '__main__':
     trainImages = readImagesPath("data/images/train")
     matPath = "data/groundTruth/train/105019.mat"
