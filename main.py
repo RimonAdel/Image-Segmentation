@@ -262,7 +262,7 @@ if __name__ == '__main__':
     ######################################    
     #The only values to change in the code
     kValues = [3,5,7,9,11]
-    imageIndex=118
+    imageIndex=145
     ######################################   
       
     matPath = graundTruthImages[imageIndex]
@@ -290,14 +290,25 @@ if __name__ == '__main__':
         plt.tight_layout()
         plt.show()
         
+        bestTruthLabel=0
+        condEntropy=0
+        fMeasure=0
+        lastCondEntropy=0
+        lastfMeasure=0
         print("Manually Implemented Kmeans")
         i = -1
         for groundTruthLabelVector in groundTruthLabelsVectorList:
+            lastCondEntropy=condEntropy
+            lastfMeasure=fMeasure
             i += 1
-            print("ConditionalEntropy of segment #",i," = ",calculateConditionalEntropy(clustersLabels,groundTruthLabelVector,k = k))
-            print("F_Measure of segment #",i," = ",calculateF_Measure(clustersLabels,groundTruthLabelVector,k=k),"\n")
-    
-    
+            condEntropy=calculateConditionalEntropy(clustersLabels,groundTruthLabelVector,k = k)
+            fMeasure=calculateF_Measure(clustersLabels,groundTruthLabelVector,k=k)
+            print("ConditionalEntropy of segment #",i," = ",condEntropy)
+            print("F_Measure of segment #",i," = ",fMeasure,"\n")
+            if condEntropy>lastCondEntropy:
+                if fMeasure>lastfMeasure:
+                    bestTruthLabel=groundTruthLabelVector
+                  
         i=-1
         print('*****************************************************************')
         print('Sickit learn KMeans:')
@@ -310,6 +321,6 @@ if __name__ == '__main__':
        
         print('*****************************************************************')
         print("Normalized Cut:")
-        normalizedCut(testRGBImage,imagePath,clustersLabels,groundTruthLabelsVectorList[0],k)     
+        normalizedCut(testRGBImage,imagePath,clustersLabels,bestTruthLabel,k)     
         print('*****************************************************************')
 #........................................................................................................                    
