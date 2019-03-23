@@ -261,6 +261,12 @@ def normalizedCut(testRGBImage,imagePath,clustersLabels,groundTruthLabelVector,k
     #return labels
     return labels
 #########################################################################################################################################################
+def resShape_2D_ListTo_1D(inputlist):
+    listToReturn = []
+    for row in inputlist:
+        listToReturn.extend(row)
+    return listToReturn
+#########################################################################################################################################################
 #Bounus
 def eklidianDistance(x,y,xCor,yCor):
     result = 0
@@ -372,13 +378,13 @@ if __name__ == '__main__':
     normalizedOutList = []
     specitalRGBOutList = []
     for k in kValues:
+        bestTruthLabel=0
         i += 1
+
         print('K value = ',k)
         finalCenters, clustersLabels = kmeans(testImage, k)
         out = color.label2rgb(np.reshape(clustersLabels,(nrows,ncols)), testRGBImage, kind='avg')
         outList.append(out)
-        
-        bestTruthLabel=0
         print("Manually Implemented Kmeans")
         entropy, f_measure,bestTruthLabel = calculateEntropyAndF_measure(clustersLabels, groundTruthLabelsVectorList, k=k)
         print("ConditionalEntropy of k = ", k, " = ", entropy)
@@ -395,10 +401,8 @@ if __name__ == '__main__':
         print('*****************************************************************')
         print("Normalized Cut:")
         labels = normalizedCut(testRGBImage,imagePath,clustersLabels,bestTruthLabel,k)
-        testLabels = []
-        for lines in labels:
-            testLabels.extend(lines)
-        entropy, f_measure, neglect = calculateEntropyAndF_measure(testLabels,groundTruthLabelsVectorList, k=k)
+        clustersLabels = resShape_2D_ListTo_1D(labels)
+        entropy, f_measure, neglect = calculateEntropyAndF_measure(clustersLabels,groundTruthLabelsVectorList, k=k)
         print("ConditionalEntropy of k = ", k, " = ", entropy)
         print("F_Measure of k =", k, " = ", f_measure, "\n")
 
@@ -411,7 +415,7 @@ if __name__ == '__main__':
         entropy, f_measure,bestTruthLabel = calculateEntropyAndF_measure(clustersLabels, groundTruthLabelsVectorList, k=k)
         print("ConditionalEntropy of k = ", k, " = ", entropy)
         print("F_Measure of k =", k, " = ", f_measure, "\n")
-        out = color.label2rgb(np.reshape(clustersLabels, (nrows, ncols)), rgbImages[0], kind='avg')
+        out = color.label2rgb(np.reshape(clustersLabels, (nrows, ncols)), testRGBImage, kind='avg')
         specitalRGBOutList.append(out)
         print('*****************************************************************')
 
