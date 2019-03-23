@@ -381,33 +381,33 @@ if __name__ == '__main__':
         bestTruthLabel=0
         i += 1
 
-        # print('K value = ',k)
-        # finalCenters, clustersLabels = kmeans(testImage, k)
-        # out = color.label2rgb(np.reshape(clustersLabels,(nrows,ncols)), testRGBImage, kind='avg')
-        # outList.append(out)
-        # print("Manually Implemented Kmeans")
-        # entropy, f_measure,bestTruthLabel = calculateEntropyAndF_measure(clustersLabels, groundTruthLabelsVectorList, k=k)
-        # print("ConditionalEntropy of k = ", k, " = ", entropy)
-        # print("F_Measure of k =", k, " = ", f_measure, "\n")
-        #
-        # print('*****************************************************************')
-        # print('Sickit learn KMeans:')
-        # #usage for sickit learn Kmeans
-        # testKMeansSickitLearn = KMeans(n_clusters=k).fit(testImage)
-        # entropy, f_measure, neglect = calculateEntropyAndF_measure(testKMeansSickitLearn.labels_, groundTruthLabelsVectorList, k=k)
-        # print("ConditionalEntropy of k = ", k, " = ", entropy)
-        # print("F_Measure of k =", k, " = ", f_measure, "\n")
-        #
-        # print('*****************************************************************')
-        # print("Normalized Cut:")
-        # labels = normalizedCut(testRGBImage,imagePath,clustersLabels,bestTruthLabel,k)
-        # clustersLabels = resShape_2D_ListTo_1D(labels)
-        # entropy, f_measure, neglect = calculateEntropyAndF_measure(clustersLabels,groundTruthLabelsVectorList, k=k)
-        # print("ConditionalEntropy of k = ", k, " = ", entropy)
-        # print("F_Measure of k =", k, " = ", f_measure, "\n")
-        #
-        # out = color.label2rgb(labels, testRGBImage, kind='avg')
-        # normalizedOutList.append(out)
+        print('K value = ',k)
+        finalCenters, clustersLabels = kmeans(testImage, k)
+        out = color.label2rgb(np.reshape(clustersLabels,(nrows,ncols)), testRGBImage, kind='avg')
+        outList.append(out)
+        print("Manually Implemented Kmeans")
+        entropy, f_measure,bestTruthLabel = calculateEntropyAndF_measure(clustersLabels, groundTruthLabelsVectorList, k=k)
+        print("ConditionalEntropy of k = ", k, " = ", entropy)
+        print("F_Measure of k =", k, " = ", f_measure, "\n")
+
+        print('*****************************************************************')
+        print('Sickit learn KMeans:')
+        #usage for sickit learn Kmeans
+        testKMeansSickitLearn = KMeans(n_clusters=k).fit(testImage)
+        entropy, f_measure, neglect = calculateEntropyAndF_measure(testKMeansSickitLearn.labels_, groundTruthLabelsVectorList, k=k)
+        print("ConditionalEntropy of k = ", k, " = ", entropy)
+        print("F_Measure of k =", k, " = ", f_measure, "\n")
+
+        print('*****************************************************************')
+        print("Normalized Cut:")
+        labels = normalizedCut(testRGBImage,imagePath,clustersLabels,bestTruthLabel,k)
+        clustersLabels = resShape_2D_ListTo_1D(labels)
+        entropy, f_measure, neglect = calculateEntropyAndF_measure(clustersLabels,groundTruthLabelsVectorList, k=k)
+        print("ConditionalEntropy of k = ", k, " = ", entropy)
+        print("F_Measure of k =", k, " = ", f_measure, "\n")
+
+        out = color.label2rgb(labels, testRGBImage, kind='avg')
+        normalizedOutList.append(out)
         print('*****************************************************************')
 
         print("specital RGB Kmean Cut:")
@@ -421,26 +421,26 @@ if __name__ == '__main__':
 
     nrows = 3
     ncols = math.ceil((len(specitalRGBOutList)+1)/2)
-    # fig, ax = plt.subplots(nrows= nrows,ncols= ncols, figsize=(6, 8))
-    # ax[0][0].imshow(mpimg.imread(imagePath))
-    #
-    # for i in range(nrows):
-    #     for j in range(ncols):
-    #         if i == 0:
-    #             j = 1
-    #         ax[i][j].imshow(outList[i])
-    # plt.tight_layout()
-    # plt.show()
-    #
-    # fig, ax = plt.subplots(nrows= nrows,ncols= ncols , figsize=(6, 8))
-    # ax[0][0].imshow(mpimg.imread(imagePath))
-    # for i in range(ncols):
-    #     for j in range(ncols):
-    #         if i == 0:
-    #             j = 1
-    #         ax[i][j].imshow(normalizedOutList[i])
-    # plt.tight_layout()
-    # plt.show()
+    fig, ax = plt.subplots(nrows= nrows,ncols= ncols, figsize=(6, 8))
+    ax[0][0].imshow(mpimg.imread(imagePath))
+
+    for i in range(nrows):
+        for j in range(ncols):
+            if i == 0:
+                j = 1
+            ax[i][j].imshow(outList[i])
+    plt.tight_layout()
+    plt.show()
+
+    fig, ax = plt.subplots(nrows= nrows,ncols= ncols , figsize=(6, 8))
+    ax[0][0].imshow(mpimg.imread(imagePath))
+    for i in range(ncols):
+        for j in range(ncols):
+            if i == 0:
+                j = 1
+            ax[i][j].imshow(normalizedOutList[i])
+    plt.tight_layout()
+    plt.show()
 
     fig, ax = plt.subplots(nrows=nrows, ncols=ncols, figsize=(6, 8))
     ax[0][0].imshow(mpimg.imread(imagePath))
