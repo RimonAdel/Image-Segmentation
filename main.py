@@ -10,6 +10,7 @@ from PIL import Image
 import math
 from skimage import  color
 from skimage.future import graph
+from random import randint
 
 def readImagesPath(path):
     dataName = path
@@ -20,7 +21,7 @@ def readImagesPath(path):
         trainData += [ImagePath]
     # return all images paths
     return trainData
-# **************************************************************************************************
+#########################################################################################################################################################
 def imgRGBread(images):
     rgbImages = []  # 3D images
     vectorizedImages = []
@@ -34,7 +35,7 @@ def imgRGBread(images):
         # convert image to (M*N)*3 Matrix
         vectorizedImages.append(image.reshape(-1, 3))
     return rgbImages, vectorizedImages
-# **************************************************************************************************
+#########################################################################################################################################################
 def imgRGBreadOneImage(imagePath):
     rgbImages = []  # 3D images
     vectorizedImage = []
@@ -47,7 +48,7 @@ def imgRGBreadOneImage(imagePath):
     # convert image to (M*N)*3 Matrix
     vectorizedImage.append(image.reshape(-1, 3))
     return rgbImages, vectorizedImage
-# **************************************************************************************************
+#########################################################################################################################################################
 def kmeans(dataSet, k):
     # I/p one of the images of vectorized Images list
     numOfPoints = len(dataSet)
@@ -94,7 +95,7 @@ def kmeans(dataSet, k):
                     count += 1
             centers[i] = (sumX / count, sumY / count, sumZ / count)
     return (centers, clusterAssignment)
-# **************************************************************************************************
+#########################################################################################################################################################
 def __extractGrondTruthMatrix(mat):
     _groundTruthLabelVectorList = []
     _groundTruthMatrixes = []
@@ -107,7 +108,7 @@ def __extractGrondTruthMatrix(mat):
         _groundTruthLabelVectorList.append(tempList)
 
     return _groundTruthMatrixes,_groundTruthLabelVectorList
-# **************************************************************************************************
+#########################################################################################################################################################
 def __getGroundTruthLabels(groundTruthMatrix,image):
     _labelsDict = {}
     i = -1
@@ -120,7 +121,7 @@ def __getGroundTruthLabels(groundTruthMatrix,image):
                 ima = image[i][j]
                 _labelsDict.update({key:[ima[2],ima[1],ima[0]]})
     return _labelsDict
-# **************************************************************************************************
+#########################################################################################################################################################
 def getGroundTruthLabelsAndGenerateImage(matPath,imagePath):
 
     image = cv2.imread(imagePath)
@@ -139,13 +140,13 @@ def getGroundTruthLabelsAndGenerateImage(matPath,imagePath):
         img.save('groundTruth#'+str(z)+'.jpg')
 
     return _groundTruthLabelVectorList
-# **************************************************************************************************
-def purityOfEachClass(labels,groundTruth2,k=3,sorted = True):
+#########################################################################################################################################################
+def purityOfEachClass(labels, groundTruth2, k=3, sorted=True):
     groundTruthLabesNumber = 0
     for i in range(len(groundTruth2)):
         if groundTruthLabesNumber < groundTruth2[i]:
             groundTruthLabesNumber = groundTruth2[i]
-    groundTruthLabesNumber +=1
+    groundTruthLabesNumber += 1
     dataInClusterindexies = []
     for i in range(k):
         dataInClusterindexies.append([])
@@ -166,17 +167,9 @@ def purityOfEachClass(labels,groundTruth2,k=3,sorted = True):
 
     for i in range(k):
         for j in range(groundTruthLabesNumber):
-            finalListNij[i][j] = (listNij[i][j],j+1)
-
-    if sorted == True:
-        for i in range(k):
-            finalListNij[i].sort(reverse=True)
+            finalListNij[i][j] = (listNij[i][j], j + 1)
 
     groundtruthList = [0] * (groundTruthLabesNumber)
-
-    for i in range(k):
-        for j in range(groundTruthLabesNumber):
-            listNij[i][j] = finalListNij[i][j][0]
 
     for j in range(groundTruthLabesNumber):
         sum = 0
@@ -184,56 +177,79 @@ def purityOfEachClass(labels,groundTruth2,k=3,sorted = True):
             sum += finalListNij[i][j][0]
         groundtruthList[j] = sum
 
-    return listNij,groundtruthList,groundTruthLabesNumber
+    if sorted == True:
+        for i in range(k):
+            finalListNij[i].sort(reverse=True)
+
+    return finalListNij, groundtruthList, groundTruthLabesNumber
 #########################################################################################################################################################
-def calculatePurity(labels,groundTruth,k=3):
-    listNij,groundtruthList,groundTruthLabesNumber = purityOfEachClass(labels,groundTruth,k)
+def calculatePurity(labels, groundTruth, k=3):
+    listNij, groundtruthList, groundTruthLabesNumber = purityOfEachClass(labels, groundTruth, k)
     sum = 0
     for i in range(k):
         sum += listNij[i][0]
     purity = sum / len(labels)
     return purity
 #########################################################################################################################################################
-def calculateF_Measure(labels,groundTruth,k=3):
-    listNij, groundtruthList,groundTruthLabesNumber = purityOfEachClass(labels,groundTruth, k)
-    NumberOfElementsInEachCluster = [0]*k
+def calculateF_Measure(labels, groundTruth, k=3):
+    listNij, groundtruthList, groundTruthLabesNumber = purityOfEachClass(labels, groundTruth, k)
+    NumberOfElementsInEachCluster = [0] * k
     for i in range(k):
         for j in range(len(listNij[i])):
-            NumberOfElementsInEachCluster[i] += listNij[i][j]
+            NumberOfElementsInEachCluster[i] += listNij[i][j][0]
     listF_measure = [0]*k
     for i in range(k):
         if NumberOfElementsInEachCluster[i] == 0:
             listF_measure[i] = 0
         else:
-            if i > (len(groundtruthList)-1):
-                listF_measure[i] = 2 * listNij[i][0] / (NumberOfElementsInEachCluster[i] + 1)
+            if i > (len(groundtruthList) - 1):
+                listF_measure[i] = ((2 * listNij[i][0][0]) / (NumberOfElementsInEachCluster[i]))
             else:
-                listF_measure[i] = 2*listNij[i][0]/(NumberOfElementsInEachCluster[i]+groundtruthList[i])
+                listF_measure[i] = ((2 * listNij[i][0][0]) / (NumberOfElementsInEachCluster[i] + groundtruthList[listNij[i][0][1]-1]))
     sum = 0
     for i in range(k):
         sum += listF_measure[i]
-    f_Measure = sum/k
+    f_Measure = sum / k
     return f_Measure
 #########################################################################################################################################################
-def calculateConditionalEntropy(labels,groundTruth,k=3):
-    listNij, groundtruthList,groundTruthLabesNumber = purityOfEachClass(labels,groundTruth, k,sorted=False)
+def calculateConditionalEntropy(labels, groundTruth, k=3):
+    listNij, groundtruthList, groundTruthLabesNumber = purityOfEachClass(labels, groundTruth, k, sorted=False)
     sizeOfData = len(groundTruth)
-    numberOfElementsInEachCluster = [0]*k
-    entropyOfEachCluster = [0]*k
+    numberOfElementsInEachCluster = [0] * k
+    entropyOfEachCluster = [0] * k
     for i in range(k):
         for j in range(groundTruthLabesNumber):
-            numberOfElementsInEachCluster[i] += listNij[i][j]
+            numberOfElementsInEachCluster[i] += listNij[i][j][0]
     for i in range(k):
         for j in range(groundTruthLabesNumber):
             if numberOfElementsInEachCluster[i] != 0:
-                tempValue = listNij[i][j]/numberOfElementsInEachCluster[i]
+                tempValue = listNij[i][j][0] / numberOfElementsInEachCluster[i]
             if tempValue != 0:
-                entropyOfEachCluster[i] += (-tempValue)*math.log10((tempValue))
+                entropyOfEachCluster[i] += (-tempValue) * math.log2((tempValue))
 
     entropy = 0
     for i in range(k):
-        entropy += (numberOfElementsInEachCluster[i]/sizeOfData)*entropyOfEachCluster[i]
+        entropy += (numberOfElementsInEachCluster[i] / sizeOfData) * entropyOfEachCluster[i]
     return entropy
+#########################################################################################################################################################
+def calculateEntropyAndF_measure(clustersLabels,groundTruthLabelsVectorList , k=3):
+    entropySum = 0
+    f_measureSum = 0
+    i = -1
+    maxEntropy = 99999
+    maxF_measure = 0
+    bestGroundTruthLabels = 0
+    for groundTruthLabelVector in groundTruthLabelsVectorList:
+        i += 1
+        condEntropy = calculateConditionalEntropy(clustersLabels, groundTruthLabelVector, k=k)
+        fMeasure = calculateF_Measure(clustersLabels, groundTruthLabelVector, k=k)
+        entropySum += condEntropy
+        f_measureSum += fMeasure
+        if condEntropy < maxEntropy and fMeasure > maxF_measure:
+            bestGroundTruthLabels = groundTruthLabelVector
+    avgEntropy = entropySum/i
+    avgf_measure = f_measureSum/i
+    return avgEntropy,(1-avgf_measure),bestGroundTruthLabels
 #########################################################################################################################################################
 def normalizedCut(testRGBImage,imagePath,clustersLabels,groundTruthLabelVector,k):
     image = mpimg.imread(imagePath)   
@@ -242,22 +258,103 @@ def normalizedCut(testRGBImage,imagePath,clustersLabels,groundTruthLabelVector,k
     g = graph.rag_mean_color(testRGBImage, np.reshape(clustersLabels,(nrows,ncols)), mode='similarity')
     #Perform Normalized Graph cut on the Region Adjacency Graph.
     labels = graph.cut_normalized(np.reshape(clustersLabels,(nrows,ncols)), g)
-    #return image
-    out = color.label2rgb(labels, testRGBImage, kind='avg')
-    fig, ax = plt.subplots(nrows=2,figsize=(6, 8))
-    ax[0].imshow(image)
-    ax[1].imshow(out)
-    plt.tight_layout()
-    plt.show()
+    #return labels
+    return labels
 #########################################################################################################################################################
+#Bounus
+def eklidianDistance(x,y,xCor,yCor):
+    result = 0
+    for i in range(len(x)):
+        result += (x[i]-y[i])*(x[i]-y[i])
+    for i in range(len(xCor)):
+        result += (xCor[i]-yCor[i])*(xCor[i]-yCor[i])
+    return math.sqrt(result)
+#########################################################################################################################################################
+def k_meanAlgUsingRBGAndPixelPosition(dataMatrix,imageWidth,k=1,prevCenters=[]):
+    if len(dataMatrix) < k:
+        return "error k must be equal number of clusters"
+    thereIsChange = True
+    centers = []
+    centersCoordinate = []
+    for i in range(k):
+        index = randint(0, (len(dataMatrix)-1))
+        newcenter = dataMatrix[index].tolist()
+        centerCoordinate = [(index//imageWidth),(index%imageWidth)]
+        while newcenter in centers or centerCoordinate in centersCoordinate :
+            index = randint(0, (len(dataMatrix) - 1))
+            newcenter = dataMatrix[index].tolist()
+            centerCoordinate = [(index // imageWidth), (index % imageWidth)]
+        centersCoordinate.append(centerCoordinate)
+        centers.append(newcenter)
+    loops = 0
+    while thereIsChange and loops < 20:
+        # print(loops)
+        loops +=1
+        labels = []
+        distances = []
+        prevCentersInLoop = []
+        prevCentersCoordiantesInLoop = []
+        for i in range(k):
+            list = []
+            for j in range(len(dataMatrix)):
+                dataCoordinate = [(j // imageWidth), (j % imageWidth)]
+                list.append((eklidianDistance(centers[i],dataMatrix[j],centersCoordinate[i],dataCoordinate),j))
+            distances.append(list)
+
+        #calculate new centers
+        for i in range(len(centers)):
+            prevCentersInLoop.append(centers[i])
+            prevCentersCoordiantesInLoop.append(centersCoordinate[i])
+        for i in range(len(distances[0])):
+            min = 99999999
+            minLabel = 1
+            for j in range(len(centers)):
+                if min > distances[j][i][0]:
+                    min = distances[j][i][0]
+                    minLabel =  j
+            labels.append(minLabel)
+
+        for i in range(0,k):
+            counter =0
+            calculateNewCenters = []
+            calculateNewCentersCoordinate = []
+            for j in range(len(centers[0])):
+                calculateNewCenters.append(0)
+            for j in range(len(centersCoordinate[0])):
+                calculateNewCentersCoordinate.append(0)
+            for j in range(len(labels)):
+                if labels[j] == i :
+                    counter +=1
+                    for z in range(len(centers[0])):
+                        calculateNewCenters[z] += dataMatrix[j][z]
+
+                    calculateNewCentersCoordinate[0] = (j // imageWidth)
+                    calculateNewCentersCoordinate[1] = (j % imageWidth)
+            if counter > 0:
+                for z in range(len(centers[0])):
+                    calculateNewCenters[z] = calculateNewCenters[z]/counter
+                for z in range(len(centersCoordinate[0])):
+                    calculateNewCentersCoordinate[z] = calculateNewCentersCoordinate[z]/counter
+                del centers[i]
+                centers.insert(i,calculateNewCenters)
+                del centersCoordinate[i]
+                centersCoordinate.insert(i, calculateNewCentersCoordinate)
+
+        thereIsChange = False
+        for i in range(len(centers)):
+            for j in range(len(centers[0])):
+                if centers[j] != prevCentersInLoop[j]:
+                    thereIsChange = True
+    return centers,labels
+#########################################################################################################################################################
+
 if __name__ == '__main__':
     trainImages = readImagesPath("data/images/train")
     graundTruthImages = readImagesPath("data/groundTruth/train") 
-    
-    
+
     ######################################    
     #The only values to change in the code
-    kValues = [3,5,7,9,11]
+    kValues = [3,5,7,9]
     imageIndex=79
     ######################################   
       
@@ -265,58 +362,89 @@ if __name__ == '__main__':
     imagePath=trainImages[imageIndex]
     
     groundTruthLabelsVectorList = getGroundTruthLabelsAndGenerateImage (matPath,imagePath)
-    #rgbImages, vectorizedImages = imgRGBreadOneImage(imagePath)
-    rgbImages, vectorizedImages = imgRGBread(trainImages)   
+    rgbImages, vectorizedImages = imgRGBread(trainImages)
     nrows = len(rgbImages[imageIndex])
-    if nrows==321:
-        ncols = 481
-    else:
-        nrows=481
-        ncols=321
-           
+    ncols = len(rgbImages[imageIndex][0])
     testRGBImage = rgbImages[imageIndex]
     testImage = vectorizedImages[imageIndex]
+    i =-1
+    outList = []
+    normalizedOutList = []
+    specitalRGBOutList = []
     for k in kValues:
+        i += 1
         print('K value = ',k)
         finalCenters, clustersLabels = kmeans(testImage, k)
         out = color.label2rgb(np.reshape(clustersLabels,(nrows,ncols)), testRGBImage, kind='avg')
-        fig, ax = plt.subplots(nrows=2,figsize=(6, 8))
-        ax[0].imshow(mpimg.imread(imagePath))
-        ax[1].imshow(out)
-        plt.tight_layout()
-        plt.show()
+        outList.append(out)
         
         bestTruthLabel=0
-        condEntropy=0
-        fMeasure=0
-        lastCondEntropy=0
-        lastfMeasure=0
         print("Manually Implemented Kmeans")
-        i = -1
-        for groundTruthLabelVector in groundTruthLabelsVectorList:
-            lastCondEntropy=condEntropy
-            lastfMeasure=fMeasure
-            i += 1
-            condEntropy=calculateConditionalEntropy(clustersLabels,groundTruthLabelVector,k = k)
-            fMeasure=calculateF_Measure(clustersLabels,groundTruthLabelVector,k=k)
-            print("ConditionalEntropy of segment #",i," = ",condEntropy)
-            print("F_Measure of segment #",i," = ",fMeasure,"\n")
-            if condEntropy>lastCondEntropy:
-                if fMeasure>lastfMeasure:
-                    bestTruthLabel=groundTruthLabelVector
-                  
-        i=-1
+        entropy, f_measure,bestTruthLabel = calculateEntropyAndF_measure(clustersLabels, groundTruthLabelsVectorList, k=k)
+        print("ConditionalEntropy of k = ", k, " = ", entropy)
+        print("F_Measure of k =", k, " = ", f_measure, "\n")
+
         print('*****************************************************************')
         print('Sickit learn KMeans:')
         #usage for sickit learn Kmeans
         testKMeansSickitLearn = KMeans(n_clusters=k).fit(testImage)
-        for groundTruthLabelVector in groundTruthLabelsVectorList:
-            i += 1
-            print("ConditionalEntropy of segment #",i," = ",calculateConditionalEntropy(testKMeansSickitLearn.labels_,groundTruthLabelVector,k=k))
-            print("F_Measure of segment #",i," = ",calculateF_Measure(testKMeansSickitLearn.labels_,groundTruthLabelVector,k=k),"\n")
-       
+        entropy, f_measure, neglect = calculateEntropyAndF_measure(testKMeansSickitLearn.labels_, groundTruthLabelsVectorList, k=k)
+        print("ConditionalEntropy of k = ", k, " = ", entropy)
+        print("F_Measure of k =", k, " = ", f_measure, "\n")
+
         print('*****************************************************************')
         print("Normalized Cut:")
-        normalizedCut(testRGBImage,imagePath,clustersLabels,bestTruthLabel,k)     
+        labels = normalizedCut(testRGBImage,imagePath,clustersLabels,bestTruthLabel,k)
+        testLabels = []
+        for lines in labels:
+            testLabels.extend(lines)
+        entropy, f_measure, neglect = calculateEntropyAndF_measure(testLabels,groundTruthLabelsVectorList, k=k)
+        print("ConditionalEntropy of k = ", k, " = ", entropy)
+        print("F_Measure of k =", k, " = ", f_measure, "\n")
+
+        out = color.label2rgb(labels, testRGBImage, kind='avg')
+        normalizedOutList.append(out)
         print('*****************************************************************')
-#........................................................................................................                    
+
+        print("specital RGB Kmean Cut:")
+        finalCenters, clustersLabels = k_meanAlgUsingRBGAndPixelPosition(testImage, ncols, k)
+        entropy, f_measure,bestTruthLabel = calculateEntropyAndF_measure(clustersLabels, groundTruthLabelsVectorList, k=k)
+        print("ConditionalEntropy of k = ", k, " = ", entropy)
+        print("F_Measure of k =", k, " = ", f_measure, "\n")
+        out = color.label2rgb(np.reshape(clustersLabels, (nrows, ncols)), rgbImages[0], kind='avg')
+        specitalRGBOutList.append(out)
+        print('*****************************************************************')
+
+    nrows = 3
+    ncols = math.ceil((len(normalizedOutList)+1)/2)
+    fig, ax = plt.subplots(nrows= nrows,ncols= ncols, figsize=(6, 8))
+    ax[0][0].imshow(mpimg.imread(imagePath))
+
+    for i in range(nrows):
+        for j in range(ncols):
+            if i == 0:
+                j = 1
+            ax[i][j].imshow(outList[i])
+    plt.tight_layout()
+    plt.show()
+
+    fig, ax = plt.subplots(nrows= nrows,ncols= ncols , figsize=(6, 8))
+    ax[0][0].imshow(mpimg.imread(imagePath))
+    for i in range(ncols):
+        for j in range(ncols):
+            if i == 0:
+                j = 1
+            ax[i][j].imshow(normalizedOutList[i])
+    plt.tight_layout()
+    plt.show()
+
+    fig, ax = plt.subplots(nrows=nrows, ncols=ncols, figsize=(6, 8))
+    ax[0][0].imshow(mpimg.imread(imagePath))
+    for i in range(ncols):
+        for j in range(ncols):
+            if i == 0:
+                j = 1
+            ax[i][j].imshow(specitalRGBOutList[i])
+    plt.tight_layout()
+    plt.show()
+    #..........................................................................................
